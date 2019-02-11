@@ -87,8 +87,10 @@ app.post('/login', (req, res) => {
     .then(user => {
         if (user.matchPassword(password)) {
             req.session.user = user
-            res.sendStatus(200)
-            console.log('gotcha logged in, chief')
+            // send user and tasks
+            Task.getByUserId(user.id)
+            .then(tasks => res.send({ user, tasks }))
+            .then(() => console.log('gotcha logged in, chief'))
         } else {
             res.send('bad password, chief')
         }
