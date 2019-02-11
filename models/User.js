@@ -36,11 +36,11 @@ class User {
         .then(makeManyUsers)
     }
     // UPDATE
-    changeName(newName) {
+    updateName(newName) {
         return db.result('update users set name=$1 where id=$2 returning id, name, pwhash', [newName, this.id])
         .then(makeOneUser)
     }
-    changePassword(newPassword) {
+    updatePassword(newPassword) {
         const salt = bcrypt.genSaltSync(saltRounds);
         const pwhash = bcrypt.hashSync(newPassword, salt)
         return db.one('update users set pwhash=$1 where id=$2 returning id, name, pwhash', [pwhash, this.id])

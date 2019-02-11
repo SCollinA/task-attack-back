@@ -69,12 +69,20 @@ app.post('/login', (req, res) => {
     })
     .catch(err => {
         console.log(err)
-        res.send('badd username, chief')
+        res.send('bad username, chief')
     })
 })
 // UPDATE
 app.post('/updateUser', (req, res) => {
     console.log('you trying to update yourself, chief?')
+    const { newName, newPassword } = req.body
+    User.getById(req.session.user.id)
+    .then(user => {
+        return Promise.all(
+            newName && user.updateName(newName),
+            newPassword && user.updatePassword(newPassword)
+        )
+    })
 })
 app.post('/updateTask', (req, res) => {
     console.log('you trying to update a task, chief?')
