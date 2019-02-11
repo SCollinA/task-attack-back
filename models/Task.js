@@ -1,6 +1,6 @@
 const db = require('./db')
 
-export default class Task {
+class Task {
     constructor(id, user_id, name, time_start, time_end, mandatory, active) {
         this.id = id
         this.user_id = user_id
@@ -63,3 +63,5 @@ export default class Task {
         return results.map(makeOneTask)
     }
 }
+
+module.exports = Task

@@ -2,7 +2,7 @@ const db = require('./db')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 
-export default class User {
+class User {
     constructor(id, name, pwhash) {
         this.id = id
         this.name = name
@@ -14,7 +14,7 @@ export default class User {
         const salt = bcrypt.genSaltSync(saltRounds);
         const pwhash = bcrypt.hashSync(password, salt)
         return db.one('insert into users (name, pwhash) values ($1, $2)', [name, pwhash])
-        .then(result => new User(result.id, result.name, result.pwhash))
+        .then(makeOneUser)
     }
 
     matchPassword(password) {
@@ -59,3 +59,5 @@ export default class User {
         return results.map(makeOneUser)
     }
 }
+
+module.exports = User
