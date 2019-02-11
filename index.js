@@ -76,33 +76,36 @@ app.post('/login', (req, res) => {
 // UPDATE
 app.post('/updateUser', (req, res) => {
     console.log('you trying to update yourself, chief?')
+    console.log(req.body)
     const { name, password } = req.body
     User.getById(req.session.user.id)
     .then(user => {
-        return Promise.all(
+        return Promise.all([
             name && user.updateName(name),
             password && user.updatePassword(password)
-        )
+        ])
     })
     // receive at least one copy of updated user
-    .then(users => res.send(users[0]))
+    .then(users => res.send(users.pop()))
+    .catch(err => console.log('not seeing the task, chief', err))
 })
-app.post('/updateTask/:id(\\d+)', (req, res) => {
+app.post('/updateTask/:taskId(\\d+)', (req, res) => {
     console.log('you trying to update a task, chief?')
     const { taskId } = req.params
     const { name, timeStart, timeEnd, mandatory, active } = req.body
     Task.getById(taskId)
     .then(task => {
-        return Promise.all(
+        return Promise.all([
             name && task.updateName(name),
             timeStart && task.updateTimeStart(timeStart),
             timeEnd && task.updateTimeEnd(timeEnd),
-            mandatory && updateMandatory(mandatory),
-            active && updateActive(active)
-        )
+            mandatory && task.updateMandatory(mandatory),
+            active && task.updateActive(active)
+        ])
     })
     // receive at least one copy of updated task
-    .then(tasks => res.send(tasks[0]))
+    .then(tasks => res.send(tasks.pop()))
+    .catch(err => console.log('not seeing the task, chief', err))
 })
 // DELETE
 app.delete('/deleteTask', (req, res) => {

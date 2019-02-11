@@ -23,7 +23,7 @@ class User {
     // RETRIEVE
     // get by id
     static getById(id) {
-        return db.one('select * from users where id=$1:raw', [name])
+        return db.one('select * from users where id=$1:raw', [id])
         .then(makeOneUser)
     }
     // get by name

@@ -34,24 +34,24 @@ class Task {
     }
     // UPDATE
     updateName(newName) {
-        return db.result(`update tasks set name=$1 returning id`, [newName])
-        .then(getById)
+        return db.result(`update tasks set name=$1 where id=$2`, [newName, this.id])
+        .then(() => Task.getById(this.id))
     }
     updateTimeStart(newTimeStart) {
-        return db.result(`update tasks set time_start=$1 returning id`, [newTimeStart])
-        .then(getById)
+        return db.result(`update tasks set time_start=$1 where id=$2`, [newTimeStart, this.id])
+        .then(() => Task.getById(this.id))
     }
     updateTimeEnd(newTimeEnd) {
-        return db.result(`update tasks set time_end=$1 returning id`, [newTimeEnd])
-        .then(getById)
+        return db.result(`update tasks set time_end=$1 where id=$2`, [newTimeEnd, this.id])
+        .then(() => Task.getById(this.id))
     }
     updateMandatory(newMandatory) {
-        return db.result(`update tasks set mandatory=$1 returning id`, [newMandatory])
-        .then(getById)
+        return db.result(`update tasks set mandatory=$1 where id=$2`, [newMandatory, this.id])
+        .then(() => Task.getById(this.id))
     }
     updateActive(newActive) {
-        return db.result(`update tasks set active=$1 returning id`, [newActive])
-        .then(getById)
+        return db.result(`update tasks set active=$1 where id=$2`, [newActive, this.id])
+        .then(() => Task.getById(this.id))
     }
     // DELETE
     delete() {
