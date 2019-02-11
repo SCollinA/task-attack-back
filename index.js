@@ -137,9 +137,9 @@ app.post('/updateTask/:taskId(\\d+)', checkUser, checkTask, (req, res) => {
     .catch(err => console.log('not seeing the task, chief', err))
 })
 // DELETE
-app.delete('/deleteTask', checkUser, (req, res) => {
+app.delete('/deleteTask/:taskId(\\d+)', checkUser, checkTask, (req, res) => {
     console.log('you trying to delete a task, chief?')
-    const { taskId } = req.body
+    const { taskId } = req.params
     Task.getById(taskId)
     .then(task => task.delete())
     .then(() => {
