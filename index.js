@@ -32,8 +32,7 @@ app.get('/', (req, res) => {
 // custom middleware
 // check if user is logged in
 function checkUser(req, res, next) {
-    console.log('checking user')
-    console.log(req.session.user)
+    console.log('checking user', req.session.user)
     if (req.session.user.id) {
         next()
     } else {
@@ -42,6 +41,7 @@ function checkUser(req, res, next) {
 }
 
 function checkTask(req, res, next) {
+    console.log('checking task')
     const { taskId } = req.params
     Task.getById(taskId)
     .then(task => {
@@ -67,7 +67,7 @@ app.post('/signup', (req, res) => {
     })
     .catch(err => {
         res.send('something went wrong signing up, chief')
-        console.log(err)
+        console.log('something went wrong signing up, chief', err)
     })
 })
 // add task
@@ -87,13 +87,14 @@ app.post('/login', (req, res) => {
     .then(user => {
         if (user.matchPassword(password)) {
             req.session.user = user
-            res.send('gotcha logged in, chief')
+            res.sendStatus(200)
+            console.log('gotcha logged in, chief')
         } else {
             res.send('bad password, chief')
         }
     })
     .catch(err => {
-        console.log(err)
+        console.log('bad username, chief', err)
         res.send('bad username, chief')
     })
 })
@@ -104,6 +105,7 @@ app.post('/updateUser', checkUser, (req, res) => {
     const { name, password } = req.body
     User.getById(req.session.user.id)
     .then(user => {
+        console.log(user)
         return Promise.all([
             name && user.updateName(name),
             password && user.updatePassword(password)
@@ -119,6 +121,7 @@ app.post('/updateTask/:taskId(\\d+)', checkUser, checkTask, (req, res) => {
     const { name, timeStart, timeEnd, mandatory, active } = req.body
     Task.getById(taskId)
     .then(task => {
+        console.log(task)
         return Promise.all([
             name && task.updateName(name),
             timeStart && task.updateTimeStart(timeStart),
