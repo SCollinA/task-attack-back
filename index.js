@@ -29,6 +29,30 @@ app.get('/', (req, res) => {
     res.send('hey mane')
 })
 
+// custom middleware
+// check if user is logged in
+function checkUser(req, res, next) {
+    console.log('checking user')
+    console.log(req.session.user)
+    if (req.session.user.id) {
+        next()
+    } else {
+        res.send('you gotta login, chief')
+    }
+}
+
+function checkTask(req, res, next) {
+    const { taskId } = req.params
+    Task.getById(taskId)
+    .then(task => {
+        if (task.user_id === req.session.user.id) { 
+            next()
+        } else {
+            res.send('is that your task, chief?')
+        }
+    })
+}
+
 // CREATE
 // register | add user
 app.post('/signup', (req, res) => {
@@ -47,7 +71,7 @@ app.post('/signup', (req, res) => {
     })
 })
 // add task
-app.post('/addTask', (req, res) => {
+app.post('/addTask', checkUser, (req, res) => {
     console.log('you tryna add a task, chief?')
     const { name, timeStart, timeEnd, mandatory, active } = req.body
     const userId = req.session.user.id
@@ -74,7 +98,7 @@ app.post('/login', (req, res) => {
     })
 })
 // UPDATE
-app.post('/updateUser', (req, res) => {
+app.post('/updateUser', checkUser, (req, res) => {
     console.log('you trying to update yourself, chief?')
     console.log(req.body)
     const { name, password } = req.body
@@ -89,7 +113,7 @@ app.post('/updateUser', (req, res) => {
     .then(users => res.send(users.pop()))
     .catch(err => console.log('not seeing the task, chief', err))
 })
-app.post('/updateTask/:taskId(\\d+)', (req, res) => {
+app.post('/updateTask/:taskId(\\d+)', checkUser, checkTask, (req, res) => {
     console.log('you trying to update a task, chief?')
     const { taskId } = req.params
     const { name, timeStart, timeEnd, mandatory, active } = req.body
@@ -108,7 +132,7 @@ app.post('/updateTask/:taskId(\\d+)', (req, res) => {
     .catch(err => console.log('not seeing the task, chief', err))
 })
 // DELETE
-app.delete('/deleteTask', (req, res) => {
+app.delete('/deleteTask', checkUser, (req, res) => {
     console.log('you trying to delete a task, chief?')
     const { taskId } = req.body
     Task.getById(taskId)
