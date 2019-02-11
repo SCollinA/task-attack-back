@@ -18,6 +18,8 @@ class Task {
         (user_id, name, time_start, time_end, mandatory, active) 
         values 
         ($1, $2, $3, $4, $5, $6)
+        returning
+        id, user_id, name, time_start, time_end, mandatory, active
         `, [user_id, name, time_start, time_end, mandatory, active])
         .then(makeOneTask)
     }
@@ -55,13 +57,13 @@ class Task {
     delete() {
         return db.result(`delete from tasks where id=$1`, [this.id])
     }
+}
 
-    makeOneTask({ id, user_id, name, time_start, time_end, mandatory, active }) {
-        return new Task(id, user_id, name, time_start, time_end, mandatory, active)
-    }
-    makeManyTasks(results) {
-        return results.map(makeOneTask)
-    }
+function makeOneTask({ id, user_id, name, time_start, time_end, mandatory, active }) {
+    return new Task(id, user_id, name, time_start, time_end, mandatory, active)
+}
+function makeManyTasks(results) {
+    return results.map(makeOneTask)
 }
 
 module.exports = Task

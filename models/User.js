@@ -13,7 +13,7 @@ class User {
     static add(name, password) {
         const salt = bcrypt.genSaltSync(saltRounds);
         const pwhash = bcrypt.hashSync(password, salt)
-        return db.one('insert into users (name, pwhash) values ($1, $2)', [name, pwhash])
+        return db.one('insert into users (name, pwhash) values ($1, $2) returning id, name, pwhash', [name, pwhash])
         .then(makeOneUser)
     }
 
@@ -28,8 +28,8 @@ class User {
     }
     // get by name
     static getByName(name) {
-        return db.any('select * from users where name=\'$1:raw\'')
-        .then(makeManyUsers)
+        return db.one('select * from users where name=\'$1:raw\'', [name])
+        .then(makeOneUser)
     }
     static getAll() {
         return db.any('select * from users')
@@ -44,20 +44,21 @@ class User {
         const salt = bcrypt.genSaltSync(saltRounds);
         const pwhash = bcrypt.hashSync(newPassword, salt)
         return db.one('update users set pwhash=$1 where id=$2 returning id, name, pwhash', [pwhash, this.id])
+        .then(makeOneUser)
     }
     // DELETE
     delete() {
         return db.result('delete from users where id=$1:raw', [this.id])
     }
+}
 
-    // hydrate a User object with data from db
-    makeOneUser({ id, name, pwhash }) {
-        return new User(id, name, pwhash)
-    }
-    // map array of db results to user objects
-    makeManyUsers(results) {
-        return results.map(makeOneUser)
-    }
+// hydrate a User object with data from db
+function makeOneUser({ id, name, pwhash }) {
+    return new User(id, name, pwhash)
+}
+// map array of db results to user objects
+function makeManyUsers(results) {
+    return results.map(makeOneUser)
 }
 
 module.exports = User

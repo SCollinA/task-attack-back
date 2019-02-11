@@ -42,7 +42,8 @@ app.post('/signup', (req, res) => {
         console.log('thanks for signing up, chief')
     })
     .catch(err => {
-        console.log('something went wrong signing up, chief')
+        res.send('something went wrong signing up, chief')
+        console.log(err)
     })
 })
 // add task
@@ -75,17 +76,33 @@ app.post('/login', (req, res) => {
 // UPDATE
 app.post('/updateUser', (req, res) => {
     console.log('you trying to update yourself, chief?')
-    const { newName, newPassword } = req.body
+    const { name, password } = req.body
     User.getById(req.session.user.id)
     .then(user => {
         return Promise.all(
-            newName && user.updateName(newName),
-            newPassword && user.updatePassword(newPassword)
+            name && user.updateName(name),
+            password && user.updatePassword(password)
         )
     })
+    // receive at least one copy of updated user
+    .then(users => res.send(users[0]))
 })
-app.post('/updateTask', (req, res) => {
+app.post('/updateTask/:id(\\d+)', (req, res) => {
     console.log('you trying to update a task, chief?')
+    const { taskId } = req.params
+    const { name, timeStart, timeEnd, mandatory, active } = req.body
+    Task.getById(taskId)
+    .then(task => {
+        return Promise.all(
+            name && task.updateName(name),
+            timeStart && task.updateTimeStart(timeStart),
+            timeEnd && task.updateTimeEnd(timeEnd),
+            mandatory && updateMandatory(mandatory),
+            active && updateActive(active)
+        )
+    })
+    // receive at least one copy of updated task
+    .then(tasks => res.send(tasks[0]))
 })
 // DELETE
 app.delete('/deleteTask', (req, res) => {
@@ -101,6 +118,7 @@ app.delete('/deleteTask', (req, res) => {
 app.post('/logout', (req, res) => {
     console.log('you tryna logout, chief?')
     req.session.user = null
+    res.send('all logged out, chief')
 })
 
 app.listen(port, () => console.log(`task-attack-back listening on port ${port}`)) 
