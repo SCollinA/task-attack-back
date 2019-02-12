@@ -29,7 +29,7 @@ class Task {
         .then(makeOneTask)
     }
     static getByUserId(user_id) {
-        return db.any('select * from tasks where user_id=$1', [user_id])
+        return db.any('select * from tasks where user_id=$1 order by time_start', [user_id])
         .then(makeManyTasks)
     }
     // UPDATE

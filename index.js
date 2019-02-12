@@ -87,8 +87,13 @@ app.post('/addTask', checkUser, (req, res) => {
     console.log('you tryna add a task, chief?')
     const { name, timeStart, timeEnd, mandatory, active } = req.body
     const userId = req.session.user.id
+    // add the task
     Task.add(userId, name, timeStart, timeEnd, mandatory, active)
-    .then(task => res.send(task))
+    .then(() => {
+        // send all the tasks back
+        Task.getByUserId(userId)
+        .then(tasks => res.send(tasks))
+    })
 })
 // RETRIEVE
 // login | get user
@@ -150,7 +155,10 @@ app.post('/updateTask/:taskId(\\d+)', checkUser, checkTask, (req, res) => {
         ])
     })
     // receive at least one copy of updated task
-    .then(tasks => res.send(tasks.pop()))
+    .then(() => {
+        Task.getByUserId(req.session.user.id)
+        .then(tasks => res.send(tasks))
+    })
     .catch(err => console.log('not seeing the task, chief', err))
 })
 // DELETE
