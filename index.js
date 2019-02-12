@@ -25,8 +25,20 @@ app.use(bodyParser.json())
 
 app.use(express.static('public'))
 
-app.get('/', (req, res) => {
-    res.send('hey mane')
+app.get('/attack', (req, res) => {
+    const sessionUser = req.session.user
+    if (sessionUser) {
+        User.getById(sessionUser.id)
+        .then(user => {
+            Task.getByUserId(user.id)
+            .then(tasks => {
+                res.send({user, tasks})
+            })
+        })
+    } else {
+        res.status(401)
+        res.send({})
+    }
 })
 
 // custom middleware
