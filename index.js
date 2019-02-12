@@ -130,11 +130,11 @@ app.post('/updateTask/:taskId(\\d+)', checkUser, checkTask, (req, res) => {
     .then(task => {
         console.log(task)
         return Promise.all([
-            name && task.updateName(name),
-            timeStart && task.updateTimeStart(timeStart),
-            timeEnd && task.updateTimeEnd(timeEnd),
-            mandatory && task.updateMandatory(mandatory),
-            active && task.updateActive(active)
+            task.updateName(name),
+            task.updateTimeStart(timeStart),
+            task.updateTimeEnd(timeEnd),
+            task.updateMandatory(mandatory),
+            task.updateActive(active)
         ])
     })
     // receive at least one copy of updated task
