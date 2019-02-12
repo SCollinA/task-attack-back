@@ -103,15 +103,20 @@ app.post('/login', (req, res) => {
 // UPDATE
 app.post('/updateUser', checkUser, (req, res) => {
     console.log('you trying to update yourself, chief?')
-    console.log(req.body)
-    const { name, password } = req.body
+    const { newName, newPassword, oldPassword } = req.body
     User.getById(req.session.user.id)
     .then(user => {
         console.log(user)
-        return Promise.all([
-            name && user.updateName(name),
-            password && user.updatePassword(password)
-        ])
+        if (user.matchPassword(oldPassword)) {
+            return Promise.all([
+                newName && user.updateName(newName),
+                newPassword && user.updatePassword(newPassword)
+            ])
+        } else { 
+            res.status(401)
+            res.send(user)
+            throw new Error('bad password, chief')
+        }
     })
     // receive at least one copy of updated user
     .then(users => res.send(users.pop()))
