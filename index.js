@@ -85,10 +85,10 @@ app.post('/signup', (req, res) => {
 // add task
 app.post('/addTask', checkUser, (req, res) => {
     console.log('you tryna add a task, chief?')
-    const { name, timeStart, timeEnd, mandatory, active } = req.body
+    const { name, time_start, time_end, mandatory, active } = req.body
     const userId = req.session.user.id
     // add the task
-    Task.add(userId, name, timeStart, timeEnd, mandatory, active)
+    Task.add(userId, name, time_start, time_end, mandatory, active)
     .then(() => {
         // send all the tasks back
         Task.getByUserId(userId)
@@ -142,14 +142,14 @@ app.post('/updateUser', checkUser, (req, res) => {
 app.post('/updateTask/:taskId(\\d+)', checkUser, checkTask, (req, res) => {
     console.log('you trying to update a task, chief?')
     const { taskId } = req.params
-    const { name, timeStart, timeEnd, mandatory, active } = req.body
+    const { name, time_start, time_end, mandatory, active } = req.body
     Task.getById(taskId)
     .then(task => {
         console.log(task)
         return Promise.all([
             task.updateName(name),
-            task.updateTimeStart(timeStart),
-            task.updateTimeEnd(timeEnd),
+            task.updateTimeStart(time_start),
+            task.updateTimeEnd(time_end),
             task.updateMandatory(mandatory),
             task.updateActive(active)
         ])
