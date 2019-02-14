@@ -44,7 +44,7 @@ app.get('/attack', (req, res) => {
 // custom middleware
 // check if user is logged in
 function checkUser(req, res, next) {
-    console.log('checking user', req.session.user)
+    console.log('checkin ya, chief', req.session.user)
     if (req.session.user.id) {
         next()
     } else {
@@ -127,7 +127,7 @@ app.post('/updateUser', checkUser, (req, res) => {
         if (user.matchPassword(oldPassword)) {
             return Promise.all([
                 newName && user.updateName(newName),
-                newPassword && user.updatePassword(newPassword)
+                newPassword !== '' && user.updatePassword(newPassword)
             ])
         } else { 
             res.status(401)
@@ -135,9 +135,11 @@ app.post('/updateUser', checkUser, (req, res) => {
             throw new Error('bad password, chief')
         }
     })
-    // receive at least one copy of updated user
-    .then(users => res.send(users.pop()))
-    .catch(err => console.log('not seeing the task, chief', err))
+    .then(() => {
+        User.getById(req.session.user.id)
+        .then(updatedUser => res.send(updatedUser))
+    })
+    .catch(err => console.log('not seeing the user, chief', err))
 })
 app.post('/updateTask/:taskId(\\d+)', checkUser, checkTask, (req, res) => {
     console.log('you trying to update a task, chief?')
