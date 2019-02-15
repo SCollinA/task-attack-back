@@ -8,8 +8,10 @@ create table tasks (
     id serial primary key,
     user_id integer references users (id) on delete cascade,
     name text,
-    time_start time,
-    time_end time,
+    start_hour integer,
+    start_min integer,
+    end_hour integer,
+    end_min integer,
     mandatory boolean,
     active boolean
 );
