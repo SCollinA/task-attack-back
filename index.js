@@ -37,7 +37,7 @@ app.get('/attack', (req, res) => {
         })
     } else {
         res.status(401)
-        res.send({})
+        res.send({errorMessage: 'no one logged in, chief'})
     }
 })
 
@@ -48,7 +48,7 @@ function checkUser(req, res, next) {
     if (req.session.user.id) {
         next()
     } else {
-        res.send('you gotta login, chief')
+        res.send({errorMessage: 'you gotta login, chief'})
     }
 }
 
@@ -60,7 +60,7 @@ function checkTask(req, res, next) {
         if (task.user_id === req.session.user.id) { 
             next()
         } else {
-            res.send('is that your task, chief?')
+            res.send({errorMessage: 'is that your task, chief?'})
         }
     })
 }
@@ -78,22 +78,26 @@ app.post('/signup', (req, res) => {
         console.log('thanks for signing up, chief')
     })
     .catch(err => {
-        res.send('something went wrong signing up, chief')
+        res.send({errorMessage: 'something went wrong signing up, chief'})
         console.log('something went wrong signing up, chief', err)
     })
 })
 // add task
 app.post('/addTask', checkUser, (req, res) => {
     console.log('you tryna add a task, chief?')
-    const { name, start_hour, start_min, end_hour, end_min, mandatory, active } = req.body
+    const { name, start, end, mandatory, active } = req.body
     const userId = req.session.user.id
     // add the task
-    Task.add(userId, name, start_hour, start_min, end_hour, end_min, mandatory, active)
+    Task.add(userId, name, start.hour, start.minute, end.hour, end.minute, mandatory, active)
     .then(newTask => {
         console.log(newTask)
         // send all the tasks back
         Task.getByUserId(userId)
         .then(tasks => res.send({tasks, newTask}))
+    })
+    .catch(err => {
+        console.log(err)
+        res.send({errorMessage: 'something went wrong adding the task, chief'})
     })
 })
 // RETRIEVE
@@ -110,12 +114,12 @@ app.post('/login', (req, res) => {
             .then(tasks => res.send({ user, tasks }))
             .then(() => console.log('gotcha logged in, chief'))
         } else {
-            res.send('bad password, chief')
+            res.send({errorMessage: 'bad password, chief'})
         }
     })
     .catch(err => {
         console.log('bad username, chief', err)
-        res.send('bad username, chief')
+        res.send({errorMessage: 'bad username, chief'})
     })
 })
 // UPDATE
@@ -140,19 +144,22 @@ app.post('/updateUser', checkUser, (req, res) => {
         User.getById(req.session.user.id)
         .then(updatedUser => res.send(updatedUser))
     })
-    .catch(err => console.log('not seeing the user, chief', err))
+    .catch(err => {
+        console.log('not seeing the user, chief', err)
+        res.send({errorMessage: 'not seeing the user, chief'})
+    })
 })
 app.post('/updateTask/:taskId(\\d+)', checkUser, checkTask, (req, res) => {
     console.log('you trying to update a task, chief?')
     const { taskId } = req.params
-    const { name, start_hour, start_min, end_hour, end_min, mandatory, active } = req.body
+    const { name, start, end, mandatory, active } = req.body
     Task.getById(taskId)
     .then(task => {
         console.log(task)
         return Promise.all([
             task.updateName(name),
-            task.updateTimeStart({start_hour, start_min}),
-            task.updateTimeEnd({end_hour, end_min}),
+            task.updateTimeStart(start.hour, start.minute),
+            task.updateTimeEnd(end.hour, end.minute),
             task.updateMandatory(mandatory),
             task.updateActive(active)
         ])
@@ -162,7 +169,10 @@ app.post('/updateTask/:taskId(\\d+)', checkUser, checkTask, (req, res) => {
         Task.getByUserId(req.session.user.id)
         .then(tasks => res.send(tasks))
     })
-    .catch(err => console.log('not seeing the task, chief', err))
+    .catch(err => {
+        console.log('not seeing the task, chief', err)
+        res.send({errorMessage: 'not seeing the task, chief'})
+    })
 })
 // DELETE
 app.delete('/deleteTask/:taskId(\\d+)', checkUser, checkTask, (req, res) => {

@@ -5,10 +5,8 @@ class Task {
         this.id = id
         this.user_id = user_id
         this.name = name
-        this.start_hour = start_hour
-        this.start_min = start_min
-        this.end_hour = end_hour
-        this.end_min = end_min
+        this.start = { hour: start_hour, minute: start_min }
+        this.end = { hour: end_hour, minute: end_min }
         this.mandatory = mandatory
         this.active = active
     }
@@ -39,11 +37,11 @@ class Task {
         return db.result(`update tasks set name=$1 where id=$2`, [newName, this.id])
         .then(() => Task.getById(this.id))
     }
-    updateTimeStart({start_hour, start_min}) {
+    updateTimeStart(start_hour, start_min) {
         return db.result(`update tasks set start_hour=$1, start_min=$2 where id=$3`, [start_hour, start_min, this.id])
         .then(() => Task.getById(this.id))
     }
-    updateTimeEnd({end_hour, end_min}) {
+    updateTimeEnd(end_hour, end_min) {
         return db.result(`update tasks set end_hour=$1, end_min=$2 where id=$3`, [end_hour, end_min, this.id])
         .then(() => Task.getById(this.id))
     }
